@@ -230,6 +230,10 @@ class _MapViewPageState extends State<MapViewPage> {
         backgroundColor: Colors.black,
         centerTitle: true,
         title: const Text("SESLİ ADIMLARLA YÖNLENDİRME"),
+        leading: IconButton(
+          icon: Icon(Icons.mic),
+          onPressed: _startListening,
+        ),
       ),
       body: Stack(
         children: [
