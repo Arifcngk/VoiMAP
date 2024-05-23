@@ -39,6 +39,8 @@ dependencies:
   speech_to_text: ^6.6.1
   vibration: ^1.8.4
   google_maps_flutter: ^2.2.8
+  geolocator: ^11.1.0
+  http: ^1.1.0
 
 dev_dependencies:
   flutter_test:
