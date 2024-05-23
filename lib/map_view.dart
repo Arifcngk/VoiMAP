@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
@@ -20,6 +21,7 @@ class _MapViewPageState extends State<MapViewPage> {
   Set<Polyline> _polylines = {};
   String apiKey = 'AIzaSyBdua_dTYkZDsyqyxCO9jMArgJcOb7yvF8';
   List<String> _steps = [];
+  late FlutterTts flutterTts; // flutterTts nesnesini oluşturdum
 
   @override
   void initState() {
@@ -28,6 +30,7 @@ class _MapViewPageState extends State<MapViewPage> {
     isListening = false;
     message = "Seni Dinliyorum...";
     _determinePosition();
+    flutterTts = FlutterTts(); // flutterTts nesnesini başlattım
   }
 
   Future<void> _determinePosition() async {
@@ -225,6 +228,12 @@ class _MapViewPageState extends State<MapViewPage> {
     }
   }
 
+  void _speakDirections() async {
+    for (var step in _steps) {
+      await flutterTts.speak(step);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -284,6 +293,7 @@ class _MapViewPageState extends State<MapViewPage> {
                             return ListTile(
                               leading: Icon(Icons.directions_walk),
                               title: Text(instruction),
+                              onTap: () => _speakDirections(),
                             );
                           },
                         ),
