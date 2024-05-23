@@ -3,6 +3,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:http/http.dart' as http;
+import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'dart:convert';
 
 class MapViewPage extends StatefulWidget {
@@ -18,6 +19,7 @@ class _MapViewPageState extends State<MapViewPage> {
   late GoogleMapController mapController;
   Set<Polyline> _polylines = {};
   String apiKey = 'AIzaSyBdua_dTYkZDsyqyxCO9jMArgJcOb7yvF8';
+  List<String> _steps = [];
 
   @override
   void initState() {
@@ -66,7 +68,8 @@ class _MapViewPageState extends State<MapViewPage> {
       mapController.animateCamera(
         CameraUpdate.newCameraPosition(
           CameraPosition(
-            target: LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
+            target:
+                LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
             zoom: 19.0,
             tilt: 45,
             bearing: 90,
@@ -95,6 +98,7 @@ class _MapViewPageState extends State<MapViewPage> {
       // Yol tarifini ayrıntılı olarak işle
       var routes = jsonResponse['routes'][0]['legs'][0]['steps'];
       List<LatLng> routePoints = [];
+      List<String> steps = [];
       for (var route in routes) {
         var startLatLng = LatLng(
             route['start_location']['lat'], route['start_location']['lng']);
@@ -102,15 +106,63 @@ class _MapViewPageState extends State<MapViewPage> {
             LatLng(route['end_location']['lat'], route['end_location']['lng']);
         routePoints.add(startLatLng);
         routePoints.add(endLatLng);
+        var instruction =
+            route['html_instructions'].replaceAll(RegExp(r'<[^>]*>'), '');
+        // Türkçe çeviri
+        instruction = _translateInstruction(instruction);
+        steps.add(instruction);
       }
       // Yönlendirme adımlarını harita üzerinde göster
       _showRouteOnMap(routePoints);
-      _showDirections(routes);
+      setState(() {
+        _steps = steps;
+      });
     } else {
       setState(() {
         message = "Yol tarifi alınamadı.";
       });
     }
+  }
+
+  String _translateInstruction(String instruction) {
+    // Türkçe çeviri
+    instruction = instruction.replaceAll("turn", "dön");
+    instruction = instruction.replaceAll("left", "sola");
+    instruction = instruction.replaceAll("right", "sağa");
+    instruction = instruction.replaceAll("Continue", "Devam et");
+    instruction = instruction.replaceAll("onto", "üzerinden");
+    instruction = instruction.replaceAll("Destination", "Hedef");
+    instruction = instruction.replaceAll("At the roundabout", "Kavşakta");
+    instruction = instruction.replaceAll("take the", "alın");
+    instruction = instruction.replaceAll("turn", "dönüş");
+    instruction = instruction.replaceAll("onto", "üzerinden");
+    instruction = instruction.replaceAll("Destination", "Hedef");
+    instruction = instruction.replaceAll("At the roundabout", "Kavşakta");
+    instruction = instruction.replaceAll("exit", "çıkış");
+    instruction = instruction.replaceAll("head", "baş");
+    instruction = instruction.replaceAll("Head", "Baş");
+    instruction = instruction.replaceAll("north", "kuzey");
+    instruction = instruction.replaceAll("south", "güney");
+    instruction = instruction.replaceAll("west", "batı");
+    instruction = instruction.replaceAll("east", "doğu");
+    instruction = instruction.replaceAll("northwest", "kuzeybatı");
+    instruction = instruction.replaceAll("northeast", "kuzeydoğu");
+    instruction = instruction.replaceAll("southwest", "güneybatı");
+    instruction = instruction.replaceAll("southeast", "güneydoğu");
+    instruction = instruction.replaceAll("turn right", "sağa dön");
+    instruction = instruction.replaceAll("on the right", "sağında");
+    instruction = instruction.replaceAll("go straight", "düz git");
+    instruction = instruction.replaceAll("on", "üzerinde");
+
+    instruction =
+        instruction.replaceAll("head north", "kuzeye doğru ilerleyin");
+    instruction =
+        instruction.replaceAll("head south", "güneye doğru ilerleyin");
+    instruction = instruction.replaceAll("head west", "bata doğru ilerleyin");
+    instruction =
+        instruction.replaceAll("head east on", "doğuya doğru ilerleyin");
+
+    return instruction;
   }
 
   void _showRouteOnMap(List<LatLng> routePoints) {
@@ -135,36 +187,13 @@ class _MapViewPageState extends State<MapViewPage> {
     );
   }
 
-  void _showDirections(List<dynamic> steps) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Scaffold(
-          appBar: AppBar(
-            title: Text("Yön Tarifi"),
-          ),
-          body: ListView.builder(
-            itemCount: steps.length,
-            itemBuilder: (BuildContext context, int index) {
-              String instruction = steps[index]['html_instructions'];
-              return ListTile(
-                leading: Icon(Icons.directions_walk),
-                title: Text(instruction),
-              );
-            },
-          ),
-        );
-      },
-    );
-  }
-
   void _startListening() async {
     bool available = await speech.initialize(
       onStatus: (status) {
-        print("onStatus: $status");
+        print("Durum: $status");
       },
       onError: (error) {
-        print("onError: $error");
+        print("Hata: $error");
       },
     );
     if (available) {
@@ -221,7 +250,8 @@ class _MapViewPageState extends State<MapViewPage> {
                 mapController.animateCamera(
                   CameraUpdate.newCameraPosition(
                     CameraPosition(
-                      target: LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
+                      target: LatLng(_currentPosition!.latitude,
+                          _currentPosition!.longitude),
                       zoom: 19.0,
                       tilt: 45,
                       bearing: 90,
@@ -234,48 +264,54 @@ class _MapViewPageState extends State<MapViewPage> {
             myLocationEnabled: true,
             myLocationButtonEnabled: true,
           ),
-          Positioned(
-            bottom: 20,
-            left: 0,
-            right: 0,
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              margin: const EdgeInsets.symmetric(horizontal: 20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.5),
-                    spreadRadius: 5,
-                    blurRadius: 7,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      message,
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
+          SlidingUpPanel(
+            panel: Column(
+              children: [
+                _steps.isEmpty
+                    ? Center(child: Text(""))
+                    : Expanded(
+                        child: ListView.builder(
+                          itemCount: _steps.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            String instruction = _steps[index];
+                            return ListTile(
+                              leading: Icon(Icons.directions_walk),
+                              title: Text(instruction),
+                            );
+                          },
+                        ),
                       ),
-                    ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          message,
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 20),
+                      FloatingActionButton(
+                        backgroundColor: Colors.black,
+                        onPressed: _startListening,
+                        child: Icon(isListening ? Icons.mic : Icons.mic_none),
+                        elevation: 0,
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 20),
-                  FloatingActionButton(
-                    backgroundColor: Colors.black,
-                    onPressed: _startListening,
-                    child: Icon(isListening ? Icons.mic : Icons.mic_none),
-                    elevation: 0,
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
+            minHeight: 120, // Panelin başlangıç yüksekliğini artırdık
+            maxHeight: MediaQuery.of(context).size.height * 0.6,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            body: Container(),
           ),
         ],
       ),
