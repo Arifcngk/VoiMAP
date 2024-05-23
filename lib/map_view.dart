@@ -17,8 +17,7 @@ class _MapViewPageState extends State<MapViewPage> {
   Position? _currentPosition;
   late GoogleMapController mapController;
   Set<Polyline> _polylines = {};
-  String apiKey =
-      'AIzaSyBdua_dTYkZDsyqyxCO9jMArgJcOb7yvF8'; 
+  String apiKey = 'AIzaSyBdua_dTYkZDsyqyxCO9jMArgJcOb7yvF8';
 
   @override
   void initState() {
@@ -63,6 +62,17 @@ class _MapViewPageState extends State<MapViewPage> {
         desiredAccuracy: LocationAccuracy.high);
     setState(() {
       _currentPosition = position;
+      // Konum alındıktan sonra haritayı kullanıcının konumuna odakla
+      mapController.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(
+            target: LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
+            zoom: 19.0,
+            tilt: 45,
+            bearing: 90,
+          ),
+        ),
+      );
     });
   }
 
@@ -106,7 +116,7 @@ class _MapViewPageState extends State<MapViewPage> {
   void _showRouteOnMap(List<LatLng> routePoints) {
     Set<Polyline> polylines = {};
     polylines.add(Polyline(
-      polylineId: PolylineId('route'),
+      polylineId: const PolylineId('route'),
       points: routePoints,
       color: Colors.blue,
       width: 5,
@@ -126,34 +136,23 @@ class _MapViewPageState extends State<MapViewPage> {
   }
 
   void _showDirections(List<dynamic> steps) {
-    List<Widget> directionsWidgets = [];
-    for (var step in steps) {
-      String instruction = step['html_instructions'];
-      directionsWidgets.add(
-        ListTile(
-          leading: Icon(Icons.directions_walk),
-          title: Text(instruction),
-        ),
-      );
-    }
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Yön Tarifi"),
-          content: SingleChildScrollView(
-            child: Column(
-              children: directionsWidgets,
-            ),
+        return Scaffold(
+          appBar: AppBar(
+            title: Text("Yön Tarifi"),
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text("Kapat"),
-            ),
-          ],
+          body: ListView.builder(
+            itemCount: steps.length,
+            itemBuilder: (BuildContext context, int index) {
+              String instruction = steps[index]['html_instructions'];
+              return ListTile(
+                leading: Icon(Icons.directions_walk),
+                title: Text(instruction),
+              );
+            },
+          ),
         );
       },
     );
@@ -184,7 +183,7 @@ class _MapViewPageState extends State<MapViewPage> {
             }
           });
         },
-        listenFor: Duration(seconds: 10),
+        listenFor: const Duration(seconds: 10),
       );
     } else {
       setState(() {
@@ -198,9 +197,10 @@ class _MapViewPageState extends State<MapViewPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        elevation: 0,
         backgroundColor: Colors.black,
         centerTitle: true,
-        title: Text("SESLİ ADIMLARLA YÖNLENDİRME"),
+        title: const Text("SESLİ ADIMLARLA YÖNLENDİRME"),
       ),
       body: Stack(
         children: [
@@ -209,11 +209,26 @@ class _MapViewPageState extends State<MapViewPage> {
               target: _currentPosition != null
                   ? LatLng(
                       _currentPosition!.latitude, _currentPosition!.longitude)
-                  : LatLng(0, 0),
-              zoom: 14.0,
+                  : const LatLng(0, 0),
+              zoom: 19.0,
+              tilt: 45,
+              bearing: 90,
             ),
             onMapCreated: (controller) {
               mapController = controller;
+              // Harita oluşturulduktan sonra konumu kontrol et
+              if (_currentPosition != null) {
+                mapController.animateCamera(
+                  CameraUpdate.newCameraPosition(
+                    CameraPosition(
+                      target: LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
+                      zoom: 19.0,
+                      tilt: 45,
+                      bearing: 90,
+                    ),
+                  ),
+                );
+              }
             },
             polylines: _polylines,
             myLocationEnabled: true,
@@ -224,8 +239,8 @@ class _MapViewPageState extends State<MapViewPage> {
             left: 0,
             right: 0,
             child: Container(
-              padding: EdgeInsets.all(16),
-              margin: EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.all(16),
+              margin: const EdgeInsets.symmetric(horizontal: 20),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
@@ -234,7 +249,7 @@ class _MapViewPageState extends State<MapViewPage> {
                     color: Colors.grey.withOpacity(0.5),
                     spreadRadius: 5,
                     blurRadius: 7,
-                    offset: Offset(0, 3),
+                    offset: const Offset(0, 3),
                   ),
                 ],
               ),
@@ -244,16 +259,15 @@ class _MapViewPageState extends State<MapViewPage> {
                   Expanded(
                     child: Text(
                       message,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                         color: Colors.black,
                       ),
                     ),
                   ),
-                  SizedBox(width: 20),
+                  const SizedBox(width: 20),
                   FloatingActionButton(
-                    
                     backgroundColor: Colors.black,
                     onPressed: _startListening,
                     child: Icon(isListening ? Icons.mic : Icons.mic_none),
