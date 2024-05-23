@@ -139,8 +139,8 @@ class _MapViewPageState extends State<MapViewPage> {
     instruction = instruction.replaceAll("Destination", "Hedef");
     instruction = instruction.replaceAll("At the roundabout", "Kavşakta");
     instruction = instruction.replaceAll("exit", "çıkış");
-    instruction = instruction.replaceAll("head", "baş");
-    instruction = instruction.replaceAll("Head", "Baş");
+    instruction = instruction.replaceAll("head", "başlangıç");
+    instruction = instruction.replaceAll("Head", "Başlangıç");
     instruction = instruction.replaceAll("north", "kuzey");
     instruction = instruction.replaceAll("south", "güney");
     instruction = instruction.replaceAll("west", "batı");
@@ -152,7 +152,10 @@ class _MapViewPageState extends State<MapViewPage> {
     instruction = instruction.replaceAll("turn right", "sağa dön");
     instruction = instruction.replaceAll("on the right", "sağında");
     instruction = instruction.replaceAll("go straight", "düz git");
-    instruction = instruction.replaceAll("on", "üzerinde");
+    instruction = instruction.replaceAll("on", "tarafına");
+    instruction = instruction.replaceAll("Turn", "Dönüş");
+    instruction = instruction.replaceAll("Slight", "Hafif");
+    instruction = instruction.replaceAll("slight", "hafif");
 
     instruction =
         instruction.replaceAll("head north", "kuzeye doğru ilerleyin");
