@@ -1,16 +1,5 @@
-# voice_assistant
+# VoiMap
 
-A new Flutter project.
+This Flutter project is a map application designed for individuals with visual impairments or blindness. Users specify their desired destination verbally, and the application creates a navigation route to the indicated destination.
 
-## Getting Started
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
