@@ -21,7 +21,7 @@ class _MapViewPageState extends State<MapViewPage> {
   Set<Polyline> _polylines = {};
   String apiKey = 'AIzaSyBdua_dTYkZDsyqyxCO9jMArgJcOb7yvF8';
   List<String> _steps = [];
-  late FlutterTts flutterTts; // flutterTts nesnesini oluşturdum
+  late FlutterTts flutterTts; // flutterTts nesn oluşturdum
 
   @override
   void initState() {
@@ -98,7 +98,7 @@ class _MapViewPageState extends State<MapViewPage> {
     var jsonResponse = json.decode(response.body);
 
     if (jsonResponse['status'] == 'OK') {
-      // Yol tarifini ayrıntılı olarak işle
+      
       var routes = jsonResponse['routes'][0]['legs'][0]['steps'];
       List<LatLng> routePoints = [];
       List<String> steps = [];
@@ -213,7 +213,7 @@ class _MapViewPageState extends State<MapViewPage> {
                 ? result.recognizedWords
                 : "Anlaşılamadı";
             if (result.recognizedWords.isNotEmpty) {
-              // Hedef adresi almak için yönlendirme işlevini burada çağırın
+              
               _getDirections(result.recognizedWords);
             }
           });
@@ -325,7 +325,7 @@ class _MapViewPageState extends State<MapViewPage> {
                 ),
               ],
             ),
-            minHeight: 120, // Panelin başlangıç yüksekliğini artırdık
+            minHeight: 120, // Panelin başlangıç yüksekliğ artırdık
             maxHeight: MediaQuery.of(context).size.height * 0.6,
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
             body: Container(),
