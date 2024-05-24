@@ -7,5 +7,5 @@ This Flutter project is a map application designed for individuals with visual i
 
 
 
-https://github.com/Arifcngk/VoiMAP/assets/93188117/20542258-060f-40e7-b108-4198ed9a7e59
+
 
