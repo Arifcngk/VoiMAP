@@ -241,7 +241,7 @@ class _MapViewPageState extends State<MapViewPage> {
         elevation: 0,
         backgroundColor: Colors.black,
         centerTitle: true,
-        title: const Text("SESLİ ADIMLARLA YÖNLENDİRME"),
+        title: const Text("VoiMAP"),
         leading: IconButton(
           icon: Icon(Icons.mic),
           onPressed: _startListening,
